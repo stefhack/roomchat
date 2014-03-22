@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+      <script src="/socket.io/socket.io.js"></script>
+      <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+      <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+      <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <h2 >Votre pseudo :</h2>
+    <p></p><input id="champ_pseudo" type="text">
+    <button id="bouton_pseudo">Envoyer pseudo</button>
+    </p>
+    <h2>Votre couleur :</h2>
+    <p>
+        <input type="text" id="input_couleur">
+        <button id="bouton_couleur">Envoyer couleur</button>
+    </p>
+
+    <h2>Envoyer votre message</h2>
+    <p>
+    <input id="msg" type="text"/>
+    <button onclick="sendMsg();">Envoyer message</button>
+    </p>
+    <h1>Discussion :</h1><br>
+  <p id="message"></p>
+  <!-- <h1>Deplace moi</h1>-->
+
+    <script>
+        var socket=io.connect('http://192.168.1.99:80');
+        socket.on("connection",function(msg){
+           // console.log(msg.data);
+
+        });
+
+        socket.on("new",function(data){
+            $("#message").append(data+"<br>");
+           // console.log(data);
+        });
+
+ /**********Envoi message***/
+        function sendMsg(){
+            socket.emit('message',{message:$("#msg").val()});
+            console.log($("#msg").val());
+            $("#message").append("<p class='couleur myMessage'>--Moi :"+ $("#msg").val()+"<br>");
+            $(".myMessage").css("background-color",sessionStorage.couleur);
+            $("#msg").val("");
+        }
+/***********Réception d'un message**************/
+        socket.on('newMsg',function(data){
+            $("#message").append("<p class='couleur' style='background-color:'+data.couleur>--"+data.pseudo+":"+data.message+"</p>");
+  // $(".otherMessage").css("background-color",data.couleur);
+        });
+
+/************Envoi de la couleur*************/
+        $("#bouton_couleur").click(function(){
+            var couleur=$("#input_couleur").val();
+            socket.emit('couleur',couleur);
+            sessionStorage.couleur=couleur;
+        });
+
+/********Envoi du pseudo***********/
+$("#bouton_pseudo").click(function(){
+    var pseudo = $("#champ_pseudo").val();
+    socket.emit('pseudo',pseudo);
+});
+
+
+$(function(){
+    $("h1").draggable();
+    $("h1").on("mousedown",function(){
+       socket.emit("drag","h1 bouge");
+    });
+});
+
+    </script>
+  </body>
+</html>
