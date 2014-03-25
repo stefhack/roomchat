@@ -3,6 +3,7 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+      <link rel='stylesheet' href='/stylesheets/animate.css' />
       <script src="/socket.io/socket.io.js"></script>
       <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
       <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
@@ -11,23 +12,33 @@
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <p id="welcome" style="display: none;">Welcome to <%= title %></p>
+
+    <!--Formulaire du pseudo-->
+    <div id="pseudo-form">
     <h2 >Votre pseudo :</h2>
     <p></p><input id="champ_pseudo" type="text">
     <button id="bouton_pseudo">Envoyer pseudo</button>
     </p>
+    </div>
+
+    <!--Formulaire de la couleur-->
+    <div id="color-form" style="display: none;">
     <h2>Votre couleur :</h2>
     <p>
         <input type="text" id="input_couleur">
         <button id="bouton_couleur">Envoyer couleur</button>
     </p>
-
+    </div>
+<div id="msg-form" style="display: none;">
     <h2>Envoyer votre message</h2>
     <p>
     <input id="msg" type="text"/>
     <button onclick="sendMsg();">Envoyer message</button>
     </p>
+
     <h1>Discussion :</h1><br>
+</div>
   <p id="message"></p>
   <!-- <h1>Deplace moi</h1>-->
 
@@ -39,7 +50,7 @@
         });
 
         socket.on("new",function(data){
-            $("#message").append(data+"<br>");
+            $("#message").append(data+"<br>").addClass("animated flash");
            // console.log(data);
         });
 
@@ -53,8 +64,13 @@
         }
 /***********Réception d'un message**************/
         socket.on('newMsg',function(data){
-            $("#message").append("<p class='couleur' style='background-color:'+data.couleur>--"+data.pseudo+":"+data.message+"</p>");
+            var couleur=data.couleur;
+            var message="<p class='couleur' style='background-color:'"+couleur+">--"+data.pseudo+":"+data.message+"</p>";
+
+            $("#message").append("<p class='couleur' style='background-color:"+couleur+"'>--"+data.pseudo+":"+data.message+"</p>");
   // $(".otherMessage").css("background-color",data.couleur);
+            console.log("couleur :"+data.couleur);
+console.log("message :"+message.toString());
         });
 
 /************Envoi de la couleur*************/
@@ -62,12 +78,17 @@
             var couleur=$("#input_couleur").val();
             socket.emit('couleur',couleur);
             sessionStorage.couleur=couleur;
+            $("#color-form").hide();
+            $("#msg-form").show();
         });
 
 /********Envoi du pseudo***********/
 $("#bouton_pseudo").click(function(){
     var pseudo = $("#champ_pseudo").val();
     socket.emit('pseudo',pseudo);
+    $("#pseudo-form").hide();
+    $("#welcome").append(" "+pseudo).show().addClass("animated bounceInDown");
+    $("#color-form").show();
 });
 
 
