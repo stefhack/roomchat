@@ -41,7 +41,31 @@ console.log('Express server listening on port ' + app.get('port'));
 
 var io=require('socket.io').listen(server);
 
+/****Config PROD***/
+io.enable('browser client minification');
+io.enable('browser client etag');
+io.enable('browser client gzip');
+io.set('log level',3);
+
+io.set('transports',['websocket','flashsocket','htmlfile','xhr-polling','jsonp-polling']);
+
+io.set('sync disconnect on unload',false);
+
+var allRooms=[];
+
 io.sockets.on('connection',function(socket){
+
+
+    socket.on('room',function(data){
+        socket.set('room',data.name);
+        allRooms.push(data.name);
+        for(var room in allRooms){
+            console.log(allRooms[room]);
+        }
+        console.log("Room :"+data.name);
+    });
+
+
 
 
 /***********Reception du pseudo***************/
@@ -75,19 +99,27 @@ io.sockets.on('connection',function(socket){
   socket.broadcast.emit('newMsg',{pseudo:pseudo,message:data.message,couleur:couleur});
     });
 
-    socket.on("drag",function(data){
-        console.log("message du client :"+data);
+
+/****Ecriture live****/
+    socket.on("textLive",function(data){
+        console.log('envoyé :'+data.text);
+            socket.broadcast.emit('text',{text:data.text});
     });
-});
 
-var cluster=require('cluster');
-var numCpu= require('os').cpus.length;
 
-console.log("Nb cpu = "+numCpu);
-console.log("Plateforme :"+require('os').platform());
-console.log('Master ? :'+ cluster.isMaster);
+/*****Deconnection*******/
+    socket.on('disconnect',function(){
 
-for(var i= 0; i<numCpu;i++){
-    cluster.fork();
-    console.log("num cpu = "+i);
-}
+        socket.get('pseudo',function(err,pseudo){
+            if(pseudo != null){
+                socket.broadcast.emit('disconnect',
+                    {user:pseudo});
+            }
+
+        });
+
+    });
+
+
+});//On Connection
+

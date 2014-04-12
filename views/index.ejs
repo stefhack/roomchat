@@ -2,19 +2,30 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+      <link rel='stylesheet/less' href='/stylesheets/colpick.css' />
+      <link rel='stylesheet/less' href='/stylesheets/style.css' />
+      <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.0/less.min.js"></script>
       <link rel='stylesheet' href='/stylesheets/animate.css' />
       <script src="/socket.io/socket.io.js"></script>
+
       <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
       <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
       <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+      <script src="/javascripts/colpick.js"></script>
+
+
 
   </head>
   <body>
     <h1><%= title %></h1>
+
+<!--<input type="text" id="room_name">
+    <button id="room_btn">Envoyer room</button>
+    -->
     <p id="welcome" style="display: none;">Welcome to <%= title %></p>
     <p>Work in progress.....</p>
-<p>Ouvrez au moins deux fenêtres , entrez un pseudo , une couleur en anglais (red,green,..) ou en hexadécimal puis discutez... </p>
+<p>Ouvrez au moins deux fenêtres , entrez un pseudo , choisissez une couleur  puis discutez... </p>
     <p>Les fonctionnalités vont évoluer d'ici peu !</p>
     <!--Formulaire du pseudo-->
     <div id="pseudo-form">
@@ -28,8 +39,10 @@
     <div id="color-form" style="display: none;">
     <h2>Votre couleur :</h2>
     <p>
-        <input type="text" id="input_couleur">
-        <button id="bouton_couleur">Envoyer couleur</button>
+        <!--<input type="text" id="input_couleur">-->
+        <div  id="picker" ></div>
+        <button id="color-btn">Choisis la couleur</button>
+      <!-- <button id="bouton_couleur">Envoyer couleur</button>-->
     </p>
     </div>
 <div id="msg-form" style="display: none;">
@@ -44,63 +57,126 @@
   <p id="message"></p>
   <!-- <h1>Deplace moi</h1>-->
 
-    <script>
-        var socket=io.connect('http://roomchat.azurewebsites.net:80');
-        socket.on("connection",function(msg){
-           // console.log(msg.data);
-
-        });
-
-        socket.on("new",function(data){
-            $("#message").append(data+"<br>").addClass("animated flash");
-           // console.log(data);
-        });
-
- /**********Envoi message***/
-        function sendMsg(){
-            socket.emit('message',{message:$("#msg").val()});
-            console.log($("#msg").val());
-            $("#message").append("<p class='couleur myMessage'>--Moi :"+ $("#msg").val()+"<br>");
-            $(".myMessage").css("background-color",sessionStorage.couleur);
-            $("#msg").val("");
-        }
-/***********Réception d'un message**************/
-        socket.on('newMsg',function(data){
-            var couleur=data.couleur;
-            var message="<p class='couleur' style='background-color:'"+couleur+">--"+data.pseudo+":"+data.message+"</p>";
-
-            $("#message").append("<p class='couleur' style='background-color:"+couleur+"'>--"+data.pseudo+":"+data.message+"</p>");
-  // $(".otherMessage").css("background-color",data.couleur);
-            console.log("couleur :"+data.couleur);
-console.log("message :"+message.toString());
-        });
-
-/************Envoi de la couleur*************/
-        $("#bouton_couleur").click(function(){
-            var couleur=$("#input_couleur").val();
-            socket.emit('couleur',couleur);
-            sessionStorage.couleur=couleur;
-            $("#color-form").hide();
-            $("#msg-form").show();
-        });
-
-/********Envoi du pseudo***********/
-$("#bouton_pseudo").click(function(){
-    var pseudo = $("#champ_pseudo").val();
-    socket.emit('pseudo',pseudo);
-    $("#pseudo-form").hide();
-    $("#welcome").append(" "+pseudo).show().addClass("animated bounceInDown");
-    $("#color-form").show();
-});
-
-
-$(function(){
-    $("h1").draggable();
-    $("h1").on("mousedown",function(){
-       socket.emit("drag","h1 bouge");
-    });
-});
-
-    </script>
+<!--<textarea></textarea>-->
   </body>
+  <script>
+
+    $('#color-btn').click(function(e){
+        e.stopPropagation();
+        $('#picker').colpick({
+            flat:true,
+            layout:'hex',
+            onSubmit:function(hsb,hex,rgb,el){
+               // $('h1').css('color','#'+hex);
+                sendColor('#'+hex);
+                $(el).colpickHide();
+            }
+
+        });
+
+            });
+
+var socket=io.connect('http://chat.azurewebsites.net:80');
+      socket.on("new",function(data){
+          var message="<p class='new_user'>"+data+"</p>";
+          $("#message").append(message);
+          $(".new_user").last().addClass("animated flash");
+
+      });
+
+$("#room_btn").click(function(){
+   socket.emit('room',{name:$("#room_name").val()});
+});
+/***********Ecriture Live***************/
+    $('textarea').on('keyup',function(){
+        var val=$(this).val();
+        console.log(val.slice(-1));
+        socket.emit('textLive',{text:val.slice(-1)});
+    });
+
+    socket.on('text',function(data){
+       var textarea=$("textarea");
+        textarea.val(textarea.val()+(data.text));
+        console.log('Reçu :'+data.text);
+    });
+
+      /**********Envoi message***/
+      function sendMsg(){
+          socket.emit('message',{message:$("#msg").val()});
+          console.log($("#msg").val());
+          $("#message").append("<p class='couleur myMessage'>--Moi :"+ $("#msg").val()+"<br>");
+          $(".myMessage").css("background-color",sessionStorage.couleur);
+          $("#msg").val("");
+
+      }
+
+    $("#msg-form").keypress(function(evt){
+    if(evt.which == 13){
+    sendMsg();}
+    });
+      /***********Réception d'un message**************/
+      socket.on('newMsg',function(data){
+          var couleur=data.couleur;
+          var message="<p class='couleur' style='background-color:'"+couleur+">--"+data.pseudo+":"+data.message+"</p>";
+
+          $("#message").append("<p class='couleur' style='background-color:"+couleur+"'>--"+data.pseudo+":"+data.message+"</p>");
+          // $(".otherMessage").css("background-color",data.couleur);
+          console.log("couleur :"+data.couleur);
+          console.log("message :"+message.toString());
+          $('title').html('Nouveau message de '+data.pseudo);
+      });
+
+      /************Envoi de la couleur*************/
+      function sendColor(color){
+          //var couleur=$("#input_couleur").val();
+          socket.emit('couleur',color);
+          sessionStorage.couleur=color;
+          $("#color-form").hide();
+          $("#msg-form").show();
+    }
+    /*
+      $("#bouton_couleur").click(function(){
+         sendColor();
+      });
+
+     $("#input_couleur").keypress(function(evt){
+         if(evt.which ==13 ){
+             sendColor();
+         }
+     });
+     */
+      /********Envoi du pseudo***********/
+
+      function sendPseudo(){
+          var pseudo = $("#champ_pseudo").val();
+          socket.emit('pseudo',pseudo);
+          $("#pseudo-form").hide();
+          $("#welcome").append(" "+pseudo).show().addClass("animated bounceInDown");
+          $("#color-form").show();
+
+      }
+      $("#bouton_pseudo").click(function(){
+         sendPseudo();
+
+      });
+
+    $("#champ_pseudo").keypress(function(evt){
+        if(evt.which == 13 ){
+            sendPseudo();
+        }
+    });
+
+
+    /********Deconnection**********/
+
+    socket.on('disconnect',function(data){
+var message = '<p class="deconnect">'+'déconnection de '+data.user+'</p>';
+        console.log(message);
+        $("#message").append(message);
+        $('.deconnect').last().addClass("animated flash");
+    });
+
+
+
+  </script>
 </html>
