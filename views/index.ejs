@@ -157,7 +157,7 @@ $("#room_btn").click(function(){
     /********Deconnection**********/
 
     socket.on('disconnect',function(data){
-var message = '<p class="deconnect">'+'déconnection de '+data.user+'</p>';
+var message = '<p class="deconnect">'+'déconnexion de '+data.user+'</p>';
         console.log(message);
         $("#message").append(message);
         $('.deconnect').last().addClass("animated flash");
