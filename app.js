@@ -70,8 +70,21 @@ io.sockets.on('connection',function(socket){
     });
 
 */
+/********Ardoise********/
+socket.on('ardoise_start',function(data){
+    socket.broadcast.emit('ardoise_start',{painting:data.painting,X:data.X,Y:data.Y});
+console.log('Start ardoise...');
+});
 
+    socket.on('ardoise_move',function(data){
+       socket.broadcast.emit('ardoise_move',{painting:data.painting,X:data.X,Y:data.Y});
+        console.log('ardoise_move');
+    });
 
+    socket.on('ardoise_end',function(data){
+        socket.broadcast.emit('ardoise_end',{end:true});
+        console.log('ardoise fin ....');
+    });
 /***********Reception du pseudo***************/
     socket.on('pseudo',function(data){
         console.log(data+" est maintenant connecté");

@@ -13,11 +13,16 @@
       <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
       <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
       <script src="/javascripts/colpick.js"></script>
-
+<script>
+    var socket=io.connect('http://roomchat.azurewebsites.net:80');
+</script>
 
 
   </head>
+
   <body>
+  <div id="conteneur">
+  <div id="cadre_chat">
     <h1><%= title %></h1>
 
 <!--<input type="text" id="room_name">
@@ -55,15 +60,26 @@
     <h1>Discussion :</h1><br>
 </div>
   <p id="message"></p>
-  <!-- <h1>Deplace moi</h1>-->
+  </div>
+  <div id="cadre_ardoise" >
 
+  </div>
+  </div>
+</body>
 <!--<textarea></textarea>-->
   </body>
+
+  <script src="/javascripts/init.js"></script>
+
+ <script src="/javascripts/mobile.js"></script>
+  <script src="/javascripts/mouse.js"></script>
+   <script src="/javascripts/events.js"></script>
+   <script src="/javascripts/paint.js"></script>
   <script>
 
+$(document).ready(function(){
 
 
-var socket=io.connect('http://roomchat.azurewebsites.net:80');
       socket.on("new",function(data){
           var message="<p class='new_user'>"+data+"</p>";
           $("#message").append(message);
@@ -71,21 +87,47 @@ var socket=io.connect('http://roomchat.azurewebsites.net:80');
 
       });
 
-$("#room_btn").click(function(){
-   socket.emit('room',{name:$("#room_name").val()});
-});
-/***********Ecriture Live***************/
-    $('textarea').on('keyup',function(){
-        var val=$(this).val();
-        console.log(val.slice(-1));
-        socket.emit('textLive',{text:val.slice(-1)});
-    });
+      /*******Ardoise*******/
+      socket.on('ardoise_start',function(data){
+          console.log('Qqun commence à dessiner....');
+          painting=data.painting;
+          cursorX=data.X;
+          cursorY=data.Y;
+          drawLine();
+          console.log('X :'+cursorX+' Y:'+cursorY);
 
-    socket.on('text',function(data){
-       var textarea=$("textarea");
-        textarea.val(textarea.val()+(data.text));
-        console.log('Reçu :'+data.text);
-    });
+
+      });
+socket.on('ardoise_move',function(data){
+    console.log('Qqun dessine.....');
+    painting=data.painting;
+    cursorX=data.X;
+    cursorY=data.Y;
+    drawLine();
+    console.log('X :'+cursorX+' Y:'+cursorY);
+
+});
+socket.on('ardoise_end',function(data){
+    painting=false;
+   started=false;
+    console.log('fini de dessiner');
+});
+
+      $("#room_btn").click(function(){
+          socket.emit('room',{name:$("#room_name").val()});
+      });
+      /***********Ecriture Live***************/
+      $('textarea').on('keyup',function(){
+          var val=$(this).val();
+          console.log(val.slice(-1));
+          socket.emit('textLive',{text:val.slice(-1)});
+      });
+
+      socket.on('text',function(data){
+          var textarea=$("textarea");
+          textarea.val(textarea.val()+(data.text));
+          console.log('Reçu :'+data.text);
+      });
 
       /**********Envoi message***/
       function sendMsg(){
@@ -97,10 +139,10 @@ $("#room_btn").click(function(){
 
       }
 
-    $("#msg-form").keypress(function(evt){
-    if(evt.which == 13){
-    sendMsg();}
-    });
+      $("#msg-form").keypress(function(evt){
+          if(evt.which == 13){
+              sendMsg();}
+      });
       /***********Réception d'un message**************/
       socket.on('newMsg',function(data){
           var couleur=data.couleur;
@@ -120,18 +162,18 @@ $("#room_btn").click(function(){
           sessionStorage.couleur=color;
           $("#color-form").hide();
           $("#msg-form").show();
-    }
-    /*
-      $("#bouton_couleur").click(function(){
-         sendColor();
-      });
+      }
+      /*
+       $("#bouton_couleur").click(function(){
+       sendColor();
+       });
 
-     $("#input_couleur").keypress(function(evt){
-         if(evt.which ==13 ){
-             sendColor();
-         }
-     });
-     */
+       $("#input_couleur").keypress(function(evt){
+       if(evt.which ==13 ){
+       sendColor();
+       }
+       });
+       */
       /********Envoi du pseudo***********/
 
       function sendPseudo(){
@@ -143,39 +185,39 @@ $("#room_btn").click(function(){
 
       }
       $("#bouton_pseudo").click(function(){
-         sendPseudo();
+          sendPseudo();
 
       });
 
-    $("#champ_pseudo").keypress(function(evt){
-        if(evt.which == 13 ){
-            sendPseudo();
-        }
-    });
+      $("#champ_pseudo").keypress(function(evt){
+          if(evt.which == 13 ){
+              sendPseudo();
+          }
+      });
 
 
-    /********Deconnection**********/
+      /********Deconnection**********/
 
-    socket.on('disconnect',function(data){
-var message = '<p class="deconnect">'+'déconnexion de '+data.user+'</p>';
-        console.log(message);
-        $("#message").append(message);
-        $('.deconnect').last().addClass("animated flash");
-    });
+      socket.on('disconnect',function(data){
+          var message = '<p class="deconnect">'+'déconnexion de '+data.user+'</p>';
+          console.log(message);
+          $("#message").append(message);
+          $('.deconnect').last().addClass("animated flash");
+      });
 
-$('#color-btn').click(function(e){
+      $('#color-btn').click(function(e){
 
-    $('#picker').colpick({
-        flat:true,
-        layout:'hex',
-        onSubmit:function(hsb,hex,rgb,el){
-            // $('h1').css('color','#'+hex);
-            sendColor('#'+hex);
-            $(el).colpickHide();
-        }
-    });
-});
+          $('#picker').colpick({
+              flat:true,
+              layout:'hex',
+              onSubmit:function(hsb,hex,rgb,el){
+                  // $('h1').css('color','#'+hex);
+                  sendColor('#'+hex);
+                  $(el).colpickHide();
+              }
+          });
+      });
 
-
+});//Document ready
   </script>
-</html>
+ </html>
