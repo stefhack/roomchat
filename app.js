@@ -41,7 +41,7 @@ console.log('Express server listening on port ' + app.get('port'));
 
 var io=require('socket.io').listen(server);
 
-/****Config PROD***/
+/****Config PROD***
 io.enable('browser client minification');
 io.enable('browser client etag');
 io.enable('browser client gzip');
@@ -50,13 +50,13 @@ io.set('log level',3);
 io.set('transports',['websocket','flashsocket','htmlfile','xhr-polling','jsonp-polling']);
 
 io.set('sync disconnect on unload',false);
-
-var allRooms=[];
+**/
+//var allRooms=[];
 
 io.sockets.on('connection',function(socket){
 
 
-    socket.on('room',function(data){
+  /*  socket.on('room',function(data){
         socket.set('room',data.name);
         allRooms.push(data.name);
         for(var room in allRooms){
@@ -65,7 +65,7 @@ io.sockets.on('connection',function(socket){
         console.log("Room :"+data.name);
     });
 
-
+*/
 
 
 /***********Reception du pseudo***************/

@@ -5,7 +5,7 @@
 
       <link rel='stylesheet/less' href='/stylesheets/colpick.css' />
       <link rel='stylesheet/less' href='/stylesheets/style.css' />
-      <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.0/less.min.js"></script>
+      <!--<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.0/less.min.js"></script>-->
       <link rel='stylesheet' href='/stylesheets/animate.css' />
       <script src="/socket.io/socket.io.js"></script>
 
@@ -61,20 +61,7 @@
   </body>
   <script>
 
-    $('#color-btn').click(function(e){
-        e.stopPropagation();
-        $('#picker').colpick({
-            flat:true,
-            layout:'hex',
-            onSubmit:function(hsb,hex,rgb,el){
-               // $('h1').css('color','#'+hex);
-                sendColor('#'+hex);
-                $(el).colpickHide();
-            }
 
-        });
-
-            });
 
 var socket=io.connect('http://roomchat.azurewebsites.net:80');
       socket.on("new",function(data){
@@ -176,6 +163,18 @@ var message = '<p class="deconnect">'+'déconnection de '+data.user+'</p>';
         $('.deconnect').last().addClass("animated flash");
     });
 
+$('#color-btn').click(function(e){
+
+    $('#picker').colpick({
+        flat:true,
+        layout:'hex',
+        onSubmit:function(hsb,hex,rgb,el){
+            // $('h1').css('color','#'+hex);
+            sendColor('#'+hex);
+            $(el).colpickHide();
+        }
+    });
+});
 
 
   </script>
