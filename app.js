@@ -42,13 +42,16 @@ console.log('Express server listening on port ' + app.get('port'));
 var io=require('socket.io').listen(server);
 
 /****Config PROD***/
-io.enable('browser client minification');
-io.enable('browser client etag');
-io.enable('browser client gzip');
-io.set('log level',3);
-io.set('heartbeat interval',15);
-io.set('polling duration',10);
-io.set('transports',['websocket','flashsocket','htmlfile','xhr-polling','jsonp-polling']);
+io.configure(function(){
+    io.enable('browser client minification');
+    io.enable('browser client etag');
+    io.enable('browser client gzip');
+    io.set('log level',3);
+    io.set('heartbeat interval',15);
+    io.set('polling duration',10);
+    io.set('transports',['websocket','flashsocket','htmlfile','xhr-polling','jsonp-polling']);
+});
+
 
 //io.set('sync disconnect on unload',false);
 
