@@ -30,12 +30,26 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 ;
+var cluster=require('cluster');
+var numCPUs=require('os').cpus().length;
 
 app.get('/', routes.index);
 app.get('/users', user.list);
 
 var server = http.createServer(app);
-server.listen(app.get('port'));
+
+if(cluster.isMaster){
+    for(var i=0;i<numCPUs;i++){
+        cluster.fork();
+    }
+    cluster.on('exit',function(w,c,sign){
+       console.log('worker '+worker.process.pid+' died');
+    });
+}
+else{
+    server.listen(app.get('port'));
+}
+
 
 console.log('Express server listening on port ' + app.get('port'));
 
