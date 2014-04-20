@@ -1,7 +1,7 @@
 ﻿// ----------------------------------
 // Paint :
 // ----------------------------------
-
+/*
 $(document).ready(function() {
 	// Pour chaque carré de couleur :
 	$("#couleurs a").each(function() {
@@ -29,7 +29,7 @@ $(document).ready(function() {
 		}
 	});
 });
-
+*/
 
 // -----------------------
 // Fonctions de dessin :
@@ -42,7 +42,7 @@ function drawLine() {
 	    // Je place mon curseur pour la première fois :
 
 		context.beginPath();
-
+ //console.log('Started....X env:'+cursorX+'  Y env:'+cursorY);
 		context.moveTo(cursorX, cursorY);
 		started = true;
 	} 
@@ -50,7 +50,7 @@ function drawLine() {
 	else
 	{
 
-
+//console.log('Drawing....X env:'+cursorX+'  Y env:'+cursorY);
 		context.lineTo(cursorX, cursorY);
 		context.strokeStyle = color;
 		context.lineWidth = width_brush;

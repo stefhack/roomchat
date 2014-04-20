@@ -2,6 +2,12 @@
 <html>
   <head>
     <title><%= title %></title>
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
 
       <link rel='stylesheet/less' href='/stylesheets/colpick.css' />
       <link rel='stylesheet/less' href='/stylesheets/style.css' />
@@ -13,6 +19,11 @@
       <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
       <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
       <script src="/javascripts/colpick.js"></script>
+      <script src="/javascripts/init.js"></script>
+
+
+
+
 <script>
     var socket=io.connect('http://roomchat.azurewebsites.net:80');
 </script>
@@ -21,22 +32,22 @@
   </head>
 
   <body>
-  <div id="conteneur">
-  <div id="cadre_chat">
-    <h1><%= title %></h1>
+  <div class="container-fluid" id="conteneur">
+      <div class="col-md-12" align="center">
+          <h1><%= title %></h1>
+          <p id="welcome" style="display: none;">Welcolme to  <%= title %></p>
+          <p>Work in progress.....</p>
+          <p>Ouvrez au moins deux fenêtres , entrez un pseudo , choisissez une couleur  puis discutez... </p>
+          <p>Les fonctionnalités vont évoluer d'ici peu !</p>
+      </div>
+  <div class="col-md-6" id="cadre_chat">
 
-<!--<input type="text" id="room_name">
-    <button id="room_btn">Envoyer room</button>
-    -->
-    <p id="welcome" style="display: none;">Welcome to <%= title %></p>
-    <p>Work in progress.....</p>
-<p>Ouvrez au moins deux fenêtres , entrez un pseudo , choisissez une couleur  puis discutez... </p>
-    <p>Les fonctionnalités vont évoluer d'ici peu !</p>
+
     <!--Formulaire du pseudo-->
     <div id="pseudo-form">
     <h2 >Votre pseudo :</h2>
     <p></p><input id="champ_pseudo" type="text">
-    <button id="bouton_pseudo">Envoyer pseudo</button>
+    <button id="bouton_pseudo" class="btn btn-primary">Envoyer pseudo</button>
     </p>
     </div>
 
@@ -44,39 +55,42 @@
     <div id="color-form" style="display: none;">
     <h2>Votre couleur :</h2>
     <p>
-        <!--<input type="text" id="input_couleur">-->
+
         <div  id="picker" ></div>
-        <button id="color-btn">Choisis la couleur</button>
-      <!-- <button id="bouton_couleur">Envoyer couleur</button>-->
+        <button id="color-btn" class="btn btn-primary">Choisis la couleur</button>
+
     </p>
     </div>
 <div id="msg-form" style="display: none;">
     <h2>Envoyer votre message</h2>
     <p>
     <input id="msg" type="text"/>
-    <button onclick="sendMsg();">Envoyer message</button>
+    <button id="btn_msg" class="btn btn-primary">Envoyer message</button>
     </p>
 
     <h1>Discussion :</h1><br>
 </div>
   <p id="message"></p>
   </div>
-  <div id="cadre_ardoise" >
-
+  <div class="col-md-6" id="cadre_ardoise" >
+<h3>TEST</h3>
   </div>
   </div>
 </body>
+  </html>
 <!--<textarea></textarea>-->
-  </body>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="/javascripts/mobile.js"></script>
+<script src="/javascripts/mouse.js"></script>
+<script src="/javascripts/events.js"></script>
+<script src="/javascripts/paint.js"></script>
+<script>
+    $(document).ready(function(){
 
-  <script src="/javascripts/init.js"></script>
+    }
+</script>
 
- <script src="/javascripts/mobile.js"></script>
-  <script src="/javascripts/mouse.js"></script>
-   <script src="/javascripts/events.js"></script>
-   <script src="/javascripts/paint.js"></script>
-  <script>
-
+<script>
 $(document).ready(function(){
 
 
@@ -89,33 +103,31 @@ $(document).ready(function(){
 
       /*******Ardoise*******/
       socket.on('ardoise_start',function(data){
-          console.log('Qqun commence à dessiner....');
+         //console.log('Qqun commence à dessiner....');
           painting=data.painting;
           cursorX=data.X;
           cursorY=data.Y;
           drawLine();
-          console.log('X :'+cursorX+' Y:'+cursorY);
+          //console.log('X reçu:'+cursorX+' Y reçu:'+cursorY);
 
 
       });
 socket.on('ardoise_move',function(data){
-    console.log('Qqun dessine.....');
+    //console.log('Qqun dessine.....');
     painting=data.painting;
     cursorX=data.X;
     cursorY=data.Y;
     drawLine();
-    console.log('X :'+cursorX+' Y:'+cursorY);
+    //console.log('X reçu :'+cursorX+' Y reçu :'+cursorY);
 
 });
 socket.on('ardoise_end',function(data){
     painting=false;
    started=false;
-    console.log('fini de dessiner');
+    //console.log('fini de dessiner');
 });
 
-      $("#room_btn").click(function(){
-          socket.emit('room',{name:$("#room_name").val()});
-      });
+
       /***********Ecriture Live***************/
       $('textarea').on('keyup',function(){
           var val=$(this).val();
@@ -143,6 +155,10 @@ socket.on('ardoise_end',function(data){
           if(evt.which == 13){
               sendMsg();}
       });
+
+    $("#btn_msg").click(function(){
+       sendMsg();
+    });
       /***********Réception d'un message**************/
       socket.on('newMsg',function(data){
           var couleur=data.couleur;

@@ -16,22 +16,23 @@ $(document).ready(function() {
 	// Ajout du canvas :
 	// -----------------------
 	
-	var largeur_canvas = $(window).width();
-	var hauteur_canvas = $(window).height()-350;
+	var largeur_canvas = $(window).width()-100;
+	var hauteur_canvas = $(window).height()-150;
 
-	$("body").prepend('<canvas id="canvas"   width="' + largeur_canvas + '" height="' + hauteur_canvas + '"></canvas>');
-//$('#cadre_ardoise').append('<canvas width="300" height="300" id="canvas"></canvas>');
+	$("body").prepend('<canvas id="canvas"  width="' + largeur_canvas + '" height="' + hauteur_canvas + '"></canvas>');
+//$('#cadre_ardoise').prepend('<canvas width="300" height="300" id="canvas"></canvas>');
+    //$('h3').prepend('<canvas id="canvas" width="400" height="400"></canvas> ');
 	// -----------------------
 	// Définition des variables :
 	// -----------------------
-	
+
 	// Canvas :
 	canvas = $("#canvas");
 	
 	context = canvas[0].getContext('2d');
-
+     
 	// Trait arrondi :
 	context.lineJoin = 'round';
 	context.lineCap = 'round';
-	
+
 });

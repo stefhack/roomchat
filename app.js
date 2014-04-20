@@ -30,14 +30,17 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 ;
-var cluster=require('cluster');
-var numCPUs=require('os').cpus().length;
+
 
 app.get('/', routes.index);
 app.get('/users', user.list);
 
 var server = http.createServer(app);
 
+
+/*
+ var cluster=require('cluster');
+ var numCPUs=require('os').cpus().length;
 if(cluster.isMaster){
     for(var i=0;i<numCPUs;i++){
         cluster.fork();
@@ -47,10 +50,10 @@ if(cluster.isMaster){
     });
 }
 else{
-    server.listen(app.get('port'));
+
 }
-
-
+*/
+server.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
 
 var io=require('socket.io').listen(server);
@@ -88,7 +91,9 @@ io.sockets.on('connection',function(socket){
 socket.on('ardoise_start',function(data){
     socket.broadcast.emit('ardoise_start',{painting:data.painting,X:data.X,Y:data.Y});
 console.log('Start ardoise...');
+    console.log('X :'+data.X+'  Y :'+data.Y);
 });
+
 
     socket.on('ardoise_move',function(data){
        socket.broadcast.emit('ardoise_move',{painting:data.painting,X:data.X,Y:data.Y});

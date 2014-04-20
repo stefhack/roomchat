@@ -46,16 +46,23 @@ function moveStart(e, mobile) {
 		// Event mobile :
 		var ev = e.originalEvent;
 		e.preventDefault();
-		
+		//console.log("mobile");
 		// Set Coordonnées du doigt :
 		cursorX = (ev.pageX - obj.offsetLeft); // 10 = décalage du curseur
 		cursorY = (ev.pageY - obj.offsetTop);
         socket.emit('ardoise_start',{painting:true,X:cursorX,Y:cursorY});
+        //console.log('X envoyé:'+cursorX+'  Y  enoyé:'+cursorY);
 	}
 	else {
+        var ev = e.originalEvent;
+        e.preventDefault();
+        cursorX = (ev.pageX - obj.offsetLeft); // 10 = décalage du curseur
+        cursorY = (ev.pageY - obj.offsetTop);
 		// Set Coordonnées de la souris :
-		cursorX = (e.pageX /*- this.offsetLeft*/);
-		cursorY = (e.pageY /*- this.offsetTop*/);
+		//cursorX = (e.pageX /*- this.offsetLeft*/);//this.offsetLeft
+		//cursorY = (e.pageY /*- this.offsetTop*/);//this.offsetTop
         socket.emit('ardoise_start',{painting:true,X:cursorX,Y:cursorY});
+        //console.log('X enoyé :'+cursorX+'  Y envoyé:'+cursorY);
+        //console.log('souris');
 	}
 }
